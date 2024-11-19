@@ -1,12 +1,16 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import connectDB from './config/db.js';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+//Db connection
+connectDB()
 
 // Middleware
 app.use(express.json());
