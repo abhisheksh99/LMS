@@ -69,7 +69,7 @@ const Profile = () => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen mt-10">
         <div className="max-w-md mx-auto p-4 bg-red-100 border border-red-300 text-red-600 rounded-lg shadow-md text-center">
           <h2 className="font-semibold text-lg">Error Loading Profile</h2>
           <p className="mt-2">

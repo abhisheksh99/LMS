@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLoginUserMutation, useRegisterUserMutation } from "@/store/api/authApiSlice";
+import { login } from "@/store/slices/authSlice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -58,7 +59,11 @@ const Login = () => {
         const res = await loginUser(inputData).unwrap();
         console.log(res);
         toast.success("Login successful!");
-        navigate("/")
+        if (res && res.user) {
+          dispatch(login(res.user)); // Dispatching user data to Redux
+          navigate("/"); // Navigating to home page
+      }
+
         setSignUpInput({  email: "", password: "" });
 
       }
