@@ -5,9 +5,11 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from 'lucide-react';
+import Course from './Course';
 
 const Profile = () => {
   const isLoading = true;
+  const enrolledCourses=[];
   return (
     <div className="max-w-4xl mx-auto px-4 my-10">
       <h1 className="font-bold text-2xl text-center md:text-left">PROFILE</h1>
@@ -94,7 +96,13 @@ const Profile = () => {
       <div>
         <h1 className="font-medium text-lg">Courses you're enrolled in</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 my-5">
-          <h1>You haven't enrolled yet</h1>
+        {enrolledCourses.length === 0 ? (
+            <h1>You haven't enrolled yet</h1>
+          ) : (
+            enrolledCourses.map((course) => (
+              <Course course={course} key={course._id} />
+            ))
+          )}
         </div>
       </div>
     </div>
