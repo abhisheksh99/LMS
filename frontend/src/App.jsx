@@ -1,9 +1,10 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
-import Navbar from "./components/Navbar";
 import HeroSection from "./pages/student/HeroSection";
 import MainLayout from "./layout/MainLayout";
+import MyLearning from "./pages/student/MyLearning";
+import Profile from "./pages/student/Profile";
 
 const App = () => {
   return (
@@ -16,6 +17,11 @@ const App = () => {
         </Route>
          {/* Login page */}
         <Route path="/login" element={<Login />} />
+        {/* My Learning */}
+        <Route path="/my-learning" element={<MyLearning />} />
+        
+        {/* Profile */}
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </main>
   );
