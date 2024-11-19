@@ -10,7 +10,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLoginUserMutation, useRegisterUserMutation } from "@/store/api/authApiSlice";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [loginInput, setLoginInput] = useState({
@@ -23,6 +27,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const [activeTab, setActiveTab] = useState("login");
 
   const handleChange = (e, type) => {
     const { name, value } = e.target;
@@ -33,16 +38,38 @@ const Login = () => {
     }
   };
 
-  const handleRegistration = (type) =>{
-    const inputData = type === "signup" ? signUpInput : loginInput
+  const [loginUser, { isLoading: isLoginLoading }] = useLoginUserMutation();
+  const [registerUser, { isLoading: isRegisterLoading }] = useRegisterUserMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleRegistration = async (type) => {
+    const inputData = type === "signup" ? signUpInput : loginInput;
     console.log(inputData);
-    
-    
-  }
+    try {
+      if (type === "signup") {
+        const res = await registerUser(inputData).unwrap();
+        console.log(res);
+        toast.success("Registration successful!");
+        setActiveTab("login");
+        setSignUpInput({ name: "", email: "", password: "" });
+  
+      } else {
+        const res = await loginUser(inputData).unwrap();
+        console.log(res);
+        toast.success("Login successful!");
+        navigate("/")
+        setSignUpInput({  email: "", password: "" });
+
+      }
+    } catch (error) {
+      toast.error(error?.message || "Something went wrong!");
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <Tabs defaultValue="login" className="w-[400px]">
+      <Tabs  value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Login</TabsTrigger>
           <TabsTrigger value="signup">SignUp</TabsTrigger>
@@ -80,7 +107,9 @@ const Login = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={() => handleRegistration("login")}>Login</Button>
+              <Button className="w-full" onClick={() => handleRegistration("login")}>
+                Login
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -127,7 +156,9 @@ const Login = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={() => handleRegistration("signup")}>Sign Up</Button>
+              <Button className="w-full" onClick={() => handleRegistration("signup")}>
+                Sign Up
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
