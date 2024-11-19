@@ -36,11 +36,8 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   await newUser.save();
 
-  // Respond with success message
-  res.status(201).json({
-    message: "Registration successful. Please log in.",
-    success: true,
-  });
+  // Respond with success message and token
+  generateToken(res, newUser, `Registration successful. Please log in.`);
 });
 
 // Login User
@@ -75,4 +72,39 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   // Generate token and send response
   generateToken(res, user, `Welcome back ${user.name}`);
+});
+
+// Logout User
+export const logoutUser = asyncHandler(async (req, res) => {
+  res.clearCookie("token", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+
+  res.status(200).json({
+    message: "Logged out successfully.",
+    success: true,
+  });
+});
+
+// Get User Profile by ID
+export const getUserProfileById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Find user by ID
+  const user = await User.findById(id).select("-password");
+  
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found.",
+      success: false,
+    });
+  }
+
+  // Respond with user profile information
+  res.status(200).json({
+    message: "User profile retrieved successfully.",
+    success: true,
+    user,
+  });
 });
