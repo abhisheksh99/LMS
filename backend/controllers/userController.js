@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/generateToken.js";
+import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 
 // Register User
 export const registerUser = asyncHandler(async (req, res) => {
@@ -89,11 +90,11 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
 // Get User Profile by ID
 export const getUserProfileById = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const id = req.id;
 
   // Find user by ID
   const user = await User.findById(id).select("-password");
-  
+
   if (!user) {
     return res.status(404).json({
       message: "User not found.",
@@ -106,5 +107,42 @@ export const getUserProfileById = asyncHandler(async (req, res) => {
     message: "User profile retrieved successfully.",
     success: true,
     user,
+  });
+});
+
+// Update User Profile by ID
+export const updateUserProfileById = asyncHandler(async (req, res) => {
+  const id = req.id;
+  const { name } = req.body;
+  const profilePhoto = req.file;
+
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
+      success: false,
+    });
+  }
+
+  // Extract publicId of old image from URL if exists
+  if (user.photoUrl) {
+    const publicId = user.photoUrl.split("/").pop().split(".")[0];
+    await deleteMediaFromCloudinary(publicId); // Await added for async function
+  }
+
+  // Upload new photo
+  const cloudResponse = await uploadMedia(profilePhoto.path);
+  const photoUrl = cloudResponse.secure_url;
+
+  const updatedData = { name, photoUrl };
+  const updatedUser = await User.findByIdAndUpdate(id, updatedData, {
+    new: true,
+  }).select("-password");
+
+  // Respond with updated user information
+  res.status(200).json({
+    message: "User profile updated successfully.",
+    success: true,
+    user: updatedUser,
   });
 });
