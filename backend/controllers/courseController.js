@@ -88,3 +88,33 @@ export const editCourse = asyncHandler(async (req, res) => {
     course
   });
 });
+
+export const getCourseById = asyncHandler(async (req, res) => {
+  const { courseId } = req.params;
+
+  // Validate courseId
+  if (!courseId) {
+    return res.status(400).json({
+      success: false,
+      message: "Course ID is required.",
+    });
+  }
+
+  // Find course by ID
+  const course = await Course.findById(courseId);
+
+  // Check if course exists
+  if (!course) {
+    return res.status(404).json({
+      success: false,
+      message: "Course not found.",
+    });
+  }
+
+  // Send the course data with a success message
+  res.status(200).json({
+    success: true,
+    message: "Course retrieved successfully.",
+    course,
+  });
+});
