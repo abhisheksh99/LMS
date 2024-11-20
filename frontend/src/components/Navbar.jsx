@@ -110,7 +110,7 @@ const Navbar = () => {
               <Link to="/login">
                 <Button variant="outline">Login</Button>
               </Link>
-              <Link to="/signup">
+              <Link to="/login">
                 <Button>Signup</Button>
               </Link>
             </div>
