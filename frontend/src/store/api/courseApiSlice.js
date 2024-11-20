@@ -40,13 +40,33 @@ export const courseApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ['Courses'],
     }),
+
+    // Endpoint for creating a lecture within a specific course
+    createLecture: builder.mutation({
+      query: ({ lectureTitle, courseId }) => ({
+        url: `/course/${courseId}/lecture`,
+        method: "POST",
+        body: { lectureTitle },
+      }),
+      invalidatesTags: ['Courses'], 
+    }),
+
+    // Endpoint for retrieving lectures for a specific course
+    getCourseLectures: builder.query({
+      query: (courseId) => ({
+        url: `/course/${courseId}/lecture`,
+        method: "GET",
+      }),
+      providesTags: ['Courses'], 
+    }),
   }),
 });
-
 
 export const { 
   useCreateCourseMutation,
   useGetCreatorCoursesQuery, 
   useEditCourseMutation,
   useGetCourseByIdQuery, 
+  useCreateLectureMutation, 
+  useGetCourseLecturesQuery, 
 } = courseApiSlice;

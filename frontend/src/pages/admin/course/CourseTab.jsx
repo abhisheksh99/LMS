@@ -123,7 +123,7 @@ const CourseTab = () => {
       const formData = new FormData();
       Object.entries(input).forEach(([key, value]) => {
         if (value !== "") {
-          // Changed condition to check for empty string
+          
           formData.append(key, value);
         }
       });

@@ -11,6 +11,8 @@ import Sidebar from "./pages/admin/Sidebar";
 import CourseTable from "./pages/admin/course/CourseTable";
 import AddCourse from "./pages/admin/course/AddCourse";
 import EditCourse from "./pages/admin/course/EditCourse";
+import CreateLecture from "./pages/admin/lecture/CreateLecture";
+import EditLecture from "./pages/admin/lecture/EditLecture";
 
 
 const App = () => {
@@ -39,6 +41,8 @@ const App = () => {
             <Route path="courses" element={<CourseTable />} />
             <Route path="courses/create" element={<AddCourse/>} />
             <Route path="courses/:courseId" element={<EditCourse/>} />
+            <Route path="courses/:courseId/lecture" element={<CreateLecture/>} />
+            <Route path="courses/:courseId/lecture/:lectureId" element={<EditLecture/>} />
           </Route>
         </Routes>
       </div>
