@@ -1,9 +1,12 @@
 import asyncHandler from "express-async-handler";
 import Course from "../models/courseModel.js";
+import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 
+// Create a new course
 export const createCourse = asyncHandler(async (req, res) => {
   const { courseTitle, category } = req.body;
 
+  // Validate input
   if (!courseTitle || !category) {
     return res.status(400).json({ message: "Course title and category are required", success: false });
   }
@@ -21,17 +24,67 @@ export const createCourse = asyncHandler(async (req, res) => {
   });
 });
 
+// Get courses created by the user
 export const getCreatorCourses = asyncHandler(async (req, res) => {
   const userId = req.id;
-  const courses = await Course.find({ creator: userId });
   
+  const courses = await Course.find({ creator: userId });
+
   if (!courses || courses.length === 0) {
     return res.status(404).json({ message: "No courses found", success: false });
   }
-  
+
   res.status(200).json({
     message: "Courses retrieved successfully",
     success: true,
     courses
+  });
+});
+
+// Edit an existing course
+export const editCourse = asyncHandler(async (req, res) => {
+  const courseId = req.params.courseId;
+  const { courseTitle, subTitle, description, category, courseLevel, coursePrice } = req.body;
+  const thumbnail = req.file;
+
+  // Find the course by ID
+  let course = await Course.findById(courseId);
+  
+  if (!course) {
+    return res.status(404).json({ message: "Course not found!", success: false });
+  }
+
+  let courseThumbnail;
+
+  // Handle thumbnail upload if provided
+  if (thumbnail) {
+    // Delete old image if it exists
+    if (course.courseThumbnail) {
+      const publicId = course.courseThumbnail.split("/").pop().split(".")[0];
+      await deleteMediaFromCloudinary(publicId); // Delete old image from Cloudinary
+    }
+    
+    // Upload new thumbnail to Cloudinary
+    courseThumbnail = await uploadMedia(thumbnail.path);
+  }
+
+  // Prepare update data
+  const updateData = {
+    courseTitle,
+    subTitle,
+    description,
+    category,
+    courseLevel,
+    coursePrice,
+    ...(courseThumbnail && { courseThumbnail: courseThumbnail.secure_url }) // Include new thumbnail URL if uploaded
+  };
+
+  // Update the course in the database
+  course = await Course.findByIdAndUpdate(courseId, updateData, { new: true });
+
+  res.status(200).json({
+    message: "Course updated successfully.",
+    success: true,
+    course
   });
 });
