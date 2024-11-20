@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Edit } from 'lucide-react'
+import { Edit, Loader2 } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -12,13 +12,22 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { useNavigate } from 'react-router-dom'
+import { useGetCreatorCoursesQuery } from '@/store/api/courseApiSlice'
 
 const CourseTable = () => {
     const navigate=useNavigate();
+    const {data,isLoading} = useGetCreatorCoursesQuery();
+
+    if(isLoading){
+        return  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+    }
+    console.log(data);
+    
+
 
   return (
     <div>
-      <Button onClick={() => navigate("create")}>Create a new course</Button>
+      <Button onClick={() => navigate(`create`)}>Create a new course</Button>
       <Table>
         <TableCaption>A list of your recent courses.</TableCaption>
         <TableHeader>
@@ -30,20 +39,16 @@ const CourseTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">Price</TableCell>
-            <TableCell>
-              <Badge>
-                Status
-              </Badge>
-            </TableCell>
-            <TableCell>Course Title</TableCell>
-            <TableCell className="text-right">
-              <Button size='sm' variant='ghost'>
-                <Edit size={16} />
-              </Button>
-            </TableCell>
-          </TableRow>
+          {data.courses.map((course) => (
+            <TableRow key={course._id}>
+              <TableCell className="font-medium">{course?.coursePrice || "NA"}</TableCell>
+              <TableCell> <Badge>{course.isPublished ? "Published" : "Draft"}</Badge> </TableCell>
+              <TableCell>{course.courseTitle}</TableCell>
+              <TableCell className="text-right">
+                 <Button size='sm' variant='ghost' onClick={() => navigate(`${course._id}`)}><Edit/></Button>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>

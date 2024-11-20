@@ -28,9 +28,10 @@ const AddCourse = () => {
     setCategory(value);
   };
 
-  const createCourseHandler = () => {
-    createCourse({ courseTitle, category });
+  const createCourseHandler = async() => {
+    await createCourse({ courseTitle, category });
   };
+  console.log('Creating course:', { courseTitle, category });
 
   useEffect(() => {
     if (isSuccess) {
