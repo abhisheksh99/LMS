@@ -16,12 +16,17 @@ import { useGetCreatorCoursesQuery } from '@/store/api/courseApiSlice'
 
 const CourseTable = () => {
     const navigate=useNavigate();
-    const {data,isLoading} = useGetCreatorCoursesQuery();
+    const {data,isLoading, isError} = useGetCreatorCoursesQuery();
+    console.log(data);
+    
 
     if(isLoading){
         return  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
     }
    
+    if (isError || !data || !data.courses) {
+      return <div>No courses found or an error occurred.</div>;
+  }
     
 
 

@@ -46,6 +46,8 @@ const CourseTab = () => {
 
   const { data: courseByIdData, isLoading: courseByIdDataLoading } =
     useGetCourseByIdQuery(courseId);
+    console.log(courseByIdData);
+    
 
   const [editCourse, { isLoading: isEditing }] = useEditCourseMutation();
 

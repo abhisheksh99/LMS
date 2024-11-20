@@ -59,6 +59,34 @@ export const courseApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ['Courses'], 
     }),
+
+    // Endpoint for updating a lecture
+    updateLecture : builder.mutation({
+      query: ({ courseId, lectureId, lectureTitle,videoInfo,isPreviewFree}) => ({  
+        url:`/course/${courseId}/lecture/${lectureId}`,
+        method:"PUT",
+        body: {  lectureTitle,videoInfo,isPreviewFree},  
+      }),
+      invalidatesTags: ['Courses'],  // Invalidate Courses tag after updating
+    }),
+
+    // Endpoint for removing a lecture
+    removeLecture : builder.mutation({
+      query: (lectureId) => ({
+        url:`/course/lecture/${lectureId}`,
+        method:"DELETE",
+      }),
+      invalidatesTags: ['Courses'],  // Invalidate Courses tag after removal
+    }),
+
+    // Endpoint for retrieving a specific lecture by ID
+    getLectureById : builder.query({
+      query: (lectureId) => ({
+        url:`/course/lecture/${lectureId}`,
+        method:"GET",
+      }),
+      providesTags: ['Courses'],  // Provide Courses tag for this query
+    }),
   }),
 });
 
@@ -68,5 +96,8 @@ export const {
   useEditCourseMutation,
   useGetCourseByIdQuery, 
   useCreateLectureMutation, 
-  useGetCourseLecturesQuery, 
+  useGetCourseLecturesQuery,
+  useUpdateLectureMutation,   
+  useRemoveLectureMutation,  
+  useGetLectureByIdQuery,     
 } = courseApiSlice;
