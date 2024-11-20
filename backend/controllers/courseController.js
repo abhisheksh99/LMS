@@ -118,3 +118,4 @@ export const getCourseById = asyncHandler(async (req, res) => {
     course,
   });
 });
+

@@ -6,6 +6,7 @@ import connectDB from './config/db.js';
 import userRoutes from "./routes/userRoute.js"
 import courseRoutes from "./routes/courseRoute.js"
 
+
 // Load environment variables
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/course", courseRoutes)
+
 
 // Start the server
 app.listen(port, () => {
