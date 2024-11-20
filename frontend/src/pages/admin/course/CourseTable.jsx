@@ -21,7 +21,7 @@ const CourseTable = () => {
     if(isLoading){
         return  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
     }
-    console.log(data);
+   
     
 
 

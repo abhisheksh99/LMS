@@ -24,12 +24,20 @@ export const courseApiSlice = apiSlice.injectEndpoints({
 
     // Endpoint for editing an existing course
     editCourse: builder.mutation({
-      query: ({ courseId,formData }) => ({
+      query: ({ courseId, formData }) => ({
         url: `/course/${courseId}`, 
         method: "PUT",
         body: formData,
       }),
-      invalidatesTags: ['Courses'], 
+    
+    }),
+
+    // Endpoint for retrieving a specific course by ID
+    getCourseById: builder.query({
+      query: (courseId) => ({
+        url: `/course/${courseId}`, 
+        method: "GET",
+      }),
     }),
   }),
 });
@@ -38,5 +46,6 @@ export const courseApiSlice = apiSlice.injectEndpoints({
 export const { 
   useCreateCourseMutation,
   useGetCreatorCoursesQuery, 
-  useEditCourseMutation, 
+  useEditCourseMutation,
+  useGetCourseByIdQuery, 
 } = courseApiSlice;

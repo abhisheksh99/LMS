@@ -22,9 +22,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RichTextEditor from "@/components/RichTextEditor";
-import { useEditCourseMutation } from "@/store/api/courseApiSlice";
+import {
+  useEditCourseMutation,
+  useGetCourseByIdQuery,
+} from "@/store/api/courseApiSlice";
 
 const CourseTab = () => {
+  const navigate = useNavigate();
+  const { courseId } = useParams();
+
   const [input, setInput] = useState({
     courseTitle: "",
     subTitle: "",
@@ -33,64 +39,110 @@ const CourseTab = () => {
     courseLevel: "",
     coursePrice: "",
     courseThumbnail: "",
+    isPublished: false
   });
+
   const [previewThumbnail, setPreviewThumbnail] = useState("");
+
+  const { data: courseByIdData, isLoading: courseByIdDataLoading } =
+    useGetCourseByIdQuery(courseId);
+
+  const [editCourse, { isLoading: isEditing }] = useEditCourseMutation();
+
+  // Initialize data once when component mounts or when course data is fetched
+  useEffect(() => {
+    if (!courseByIdDataLoading && courseByIdData?.course) {
+      const course = courseByIdData.course;
+  
+      // Only update input state if it's still empty (initial state)
+      setInput((prevInput) => ({
+        courseTitle: prevInput.courseTitle || course.courseTitle || "",
+        subTitle: prevInput.subTitle || course.subTitle || "",
+        description: prevInput.description || course.description || "",
+        category: prevInput.category || course.category || "",
+        courseLevel: prevInput.courseLevel || course.courseLevel || "",
+        coursePrice: prevInput.coursePrice || (course.coursePrice ? String(course.coursePrice) : ""),
+        courseThumbnail: prevInput.courseThumbnail || course.courseThumbnail || "",
+        isPublished: prevInput.isPublished ?? course.isPublished ?? false,
+      }));
+  
+      if (course.courseThumbnail && !previewThumbnail) {
+        setPreviewThumbnail(course.courseThumbnail);
+      }
+    }
+  }, [courseByIdData, courseByIdDataLoading, previewThumbnail]);
+  
 
   const changeEventHandler = (e) => {
     const { name, value } = e.target;
-    setInput({ ...input, [name]: value });
+    setInput((prevInput) => ({
+      ...prevInput,
+      [name]: value,
+    }));
   };
 
   const selectCategory = (value) => {
-    setInput({ ...input, category: value }); 
+    setInput((prevInput) => ({
+      ...prevInput,
+      category: value,
+    }));
   };
 
   const selectCourseLevel = (value) => {
-    setInput({ ...input, courseLevel: value });
+    setInput((prevInput) => ({
+      ...prevInput,
+      courseLevel: value,
+    }));
   };
 
-  const [editCourse, { data, isLoading, isSuccess, error }] = useEditCourseMutation();
-
-  // get file
   const selectThumbnail = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setInput({ ...input, courseThumbnail: file });
-      // for preview
       const fileReader = new FileReader();
       fileReader.onloadend = () => setPreviewThumbnail(fileReader.result);
       fileReader.readAsDataURL(file);
+
+      setInput((prevInput) => ({
+        ...prevInput,
+        courseThumbnail: file,
+      }));
     }
   };
 
-  const params = useParams();
-  const courseId = params.courseId;
+  const togglePublishStatus = () => {
+    setInput((prevInput) => ({
+      ...prevInput,
+      isPublished: !prevInput.isPublished
+    }));
+  };
 
   const updateCourseHandler = async () => {
-    const formData = new FormData();
-    formData.append("courseTitle", input.courseTitle);
-    formData.append("subTitle", input.subTitle);
-    formData.append("description", input.description);
-    formData.append("category", input.category);
-    formData.append("courseLevel", input.courseLevel);
-    formData.append("coursePrice", input.coursePrice);
-    formData.append("courseThumbnail", input.courseThumbnail);
+    try {
+      const formData = new FormData();
+      Object.entries(input).forEach(([key, value]) => {
+        if (value !== "") {  // Changed condition to check for empty string
+          formData.append(key, value);
+        }
+      });
 
-    await editCourse({ courseId, formData });
+      await editCourse({ courseId, formData }).unwrap();
+      toast.success("Course updated successfully");
+      navigate("/admin/courses");
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to update course");
+    }
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      toast.success(data?.message || "Course updated"); 
-    }
-    if (error) {
-      toast.error(error?.data?.message || "An error occurred"); 
-    }
-  }, [isSuccess, error, data]); 
+  if (courseByIdDataLoading) {
+    return (
+      <Card>
+        <CardContent className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const isPublished = false;
-
-  const navigate = useNavigate();
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between">
@@ -101,8 +153,8 @@ const CourseTab = () => {
           </CardDescription>
         </div>
         <div className="space-x-2">
-          <Button variant="outline">
-            {isPublished ? "Unpublished" : "Publish"}
+          <Button variant="outline" onClick={togglePublishStatus}>
+            {input.isPublished ? "Unpublish" : "Publish"}
           </Button>
           <Button>Remove Course</Button>
         </div>
@@ -136,81 +188,22 @@ const CourseTab = () => {
           <div className="flex items-center gap-5">
             <div>
               <Label>Category</Label>
-              <Select
-                defaultValue={input.category}
-                onValueChange={selectCategory}
-              >
+              <Select value={input.category} onValueChange={selectCategory}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Category</SelectLabel>
+                    <SelectItem value="Web Development">Web Development</SelectItem>
                     <SelectItem value="Next JS">Next JS</SelectItem>
-                    <SelectItem value="Data Science">Data Science</SelectItem>
-                    <SelectItem value="Frontend Development">
-                      Frontend Development
-                    </SelectItem>
-                    <SelectItem value="Fullstack Development">
-                      Fullstack Development
-                    </SelectItem>
-                    <SelectItem value="MERN Stack Development">
-                      MERN Stack Development
-                    </SelectItem>
-                    <SelectItem value="Javascript">Javascript</SelectItem>
-                    <SelectItem value="Python">Python</SelectItem>
-                    <SelectItem value="Docker">Docker</SelectItem>
-                    <SelectItem value="MongoDB">MongoDB</SelectItem>
-                    <SelectItem value="HTML">HTML</SelectItem>
-                    <SelectItem value="CSS">CSS</SelectItem>
-                    <SelectItem value="React">React</SelectItem>
-                    <SelectItem value="Node.js">Node.js</SelectItem>
-                    <SelectItem value="Express.js">Express.js</SelectItem>
-                    <SelectItem value="Angular">Angular</SelectItem>
-                    <SelectItem value="Vue.js">Vue.js</SelectItem>
-                    <SelectItem value="DevOps">DevOps</SelectItem>
-                    <SelectItem value="Terraform">Terraform</SelectItem>
-                    <SelectItem value="AWS">AWS</SelectItem>
-                    <SelectItem value="Kubernetes">Kubernetes</SelectItem>
-                    <SelectItem value="CI/CD Pipelines">
-                      CI/CD Pipelines
-                    </SelectItem>
-                    <SelectItem value="Cloud Computing">
-                      Cloud Computing
-                    </SelectItem>
-                    <SelectItem value="Linux Administration">
-                      Linux Administration
-                    </SelectItem>
-                    <SelectItem value="Networking">Networking</SelectItem>
-                    <SelectItem value="Git & Version Control">
-                      Git & Version Control
-                    </SelectItem>
-                    <SelectItem value="Ansible">Ansible</SelectItem>
-                    <SelectItem value="Prometheus">Prometheus</SelectItem>
-                    <SelectItem value="Grafana">Grafana</SelectItem>
-                    <SelectItem value="Machine Learning">
-                      Machine Learning
-                    </SelectItem>
-                    <SelectItem value="Artificial Intelligence">
-                      Artificial Intelligence
-                    </SelectItem>
-                    <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
-                    <SelectItem value="SQL">SQL</SelectItem>
-                    <SelectItem value="NoSQL">NoSQL</SelectItem>
-                    <SelectItem value="GCP (Google Cloud Platform)">
-                      GCP (Google Cloud Platform)
-                    </SelectItem>
-                    <SelectItem value="Azure">Azure</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label>Course Level</Label>
-              <Select
-                defaultValue={input.courseLevel}
-                onValueChange={selectCourseLevel}
-              >
+              <Select value={input.courseLevel} onValueChange={selectCourseLevel}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select a course level" />
                 </SelectTrigger>
@@ -219,7 +212,7 @@ const CourseTab = () => {
                     <SelectLabel>Course Level</SelectLabel>
                     <SelectItem value="Beginner">Beginner</SelectItem>
                     <SelectItem value="Intermediate">Intermediate</SelectItem>
-                    <SelectItem value="Advance">Advance</SelectItem>
+                    <SelectItem value="Advanced">Advanced</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -247,15 +240,21 @@ const CourseTab = () => {
             {previewThumbnail && (
               <img
                 src={previewThumbnail}
-                className="w-64 my-2" 
+                className="w-64 my-2"
                 alt="Course Thumbnail"
               />
             )}
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => navigate("/admin/courses")}>Cancel</Button>
-            <Button disabled={isLoading} onClick={updateCourseHandler}>
-              {isLoading ? (
+            <Button
+              variant="outline"
+              onClick={() => navigate("/admin/courses")}
+              disabled={isEditing}
+            >
+              Cancel
+            </Button>
+            <Button disabled={isEditing} onClick={updateCourseHandler}>
+              {isEditing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Please wait
