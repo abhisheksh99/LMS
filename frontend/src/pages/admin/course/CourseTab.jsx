@@ -39,7 +39,7 @@ const CourseTab = () => {
     courseLevel: "",
     coursePrice: "",
     courseThumbnail: "",
-    isPublished: false
+    isPublished: false,
   });
 
   const [previewThumbnail, setPreviewThumbnail] = useState("");
@@ -53,7 +53,7 @@ const CourseTab = () => {
   useEffect(() => {
     if (!courseByIdDataLoading && courseByIdData?.course) {
       const course = courseByIdData.course;
-  
+
       // Only update input state if it's still empty (initial state)
       setInput((prevInput) => ({
         courseTitle: prevInput.courseTitle || course.courseTitle || "",
@@ -61,17 +61,19 @@ const CourseTab = () => {
         description: prevInput.description || course.description || "",
         category: prevInput.category || course.category || "",
         courseLevel: prevInput.courseLevel || course.courseLevel || "",
-        coursePrice: prevInput.coursePrice || (course.coursePrice ? String(course.coursePrice) : ""),
-        courseThumbnail: prevInput.courseThumbnail || course.courseThumbnail || "",
+        coursePrice:
+          prevInput.coursePrice ||
+          (course.coursePrice ? String(course.coursePrice) : ""),
+        courseThumbnail:
+          prevInput.courseThumbnail || course.courseThumbnail || "",
         isPublished: prevInput.isPublished ?? course.isPublished ?? false,
       }));
-  
+
       if (course.courseThumbnail && !previewThumbnail) {
         setPreviewThumbnail(course.courseThumbnail);
       }
     }
   }, [courseByIdData, courseByIdDataLoading, previewThumbnail]);
-  
 
   const changeEventHandler = (e) => {
     const { name, value } = e.target;
@@ -112,7 +114,7 @@ const CourseTab = () => {
   const togglePublishStatus = () => {
     setInput((prevInput) => ({
       ...prevInput,
-      isPublished: !prevInput.isPublished
+      isPublished: !prevInput.isPublished,
     }));
   };
 
@@ -120,7 +122,8 @@ const CourseTab = () => {
     try {
       const formData = new FormData();
       Object.entries(input).forEach(([key, value]) => {
-        if (value !== "") {  // Changed condition to check for empty string
+        if (value !== "") {
+          // Changed condition to check for empty string
           formData.append(key, value);
         }
       });
@@ -195,15 +198,71 @@ const CourseTab = () => {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Category</SelectLabel>
-                    <SelectItem value="Web Development">Web Development</SelectItem>
                     <SelectItem value="Next JS">Next JS</SelectItem>
+                    <SelectItem value="Data Science">Data Science</SelectItem>
+                    <SelectItem value="Frontend Development">
+                      Frontend Development
+                    </SelectItem>
+                    <SelectItem value="Fullstack Development">
+                      Fullstack Development
+                    </SelectItem>
+                    <SelectItem value="MERN Stack Development">
+                      MERN Stack Development
+                    </SelectItem>
+                    <SelectItem value="Javascript">Javascript</SelectItem>
+                    <SelectItem value="Python">Python</SelectItem>
+                    <SelectItem value="Docker">Docker</SelectItem>
+                    <SelectItem value="MongoDB">MongoDB</SelectItem>
+                    <SelectItem value="HTML">HTML</SelectItem>
+                    <SelectItem value="CSS">CSS</SelectItem>
+                    <SelectItem value="React">React</SelectItem>
+                    <SelectItem value="Node.js">Node.js</SelectItem>
+                    <SelectItem value="Express.js">Express.js</SelectItem>
+                    <SelectItem value="Angular">Angular</SelectItem>
+                    <SelectItem value="Vue.js">Vue.js</SelectItem>
+                    <SelectItem value="DevOps">DevOps</SelectItem>
+                    <SelectItem value="Terraform">Terraform</SelectItem>
+                    <SelectItem value="AWS">AWS</SelectItem>
+                    <SelectItem value="Kubernetes">Kubernetes</SelectItem>
+                    <SelectItem value="CI/CD Pipelines">
+                      CI/CD Pipelines
+                    </SelectItem>
+                    <SelectItem value="Cloud Computing">
+                      Cloud Computing
+                    </SelectItem>
+                    <SelectItem value="Linux Administration">
+                      Linux Administration
+                    </SelectItem>
+                    <SelectItem value="Networking">Networking</SelectItem>
+                    <SelectItem value="Git & Version Control">
+                      Git & Version Control
+                    </SelectItem>
+                    <SelectItem value="Ansible">Ansible</SelectItem>
+                    <SelectItem value="Prometheus">Prometheus</SelectItem>
+                    <SelectItem value="Grafana">Grafana</SelectItem>
+                    <SelectItem value="Machine Learning">
+                      Machine Learning
+                    </SelectItem>
+                    <SelectItem value="Artificial Intelligence">
+                      Artificial Intelligence
+                    </SelectItem>
+                    <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
+                    <SelectItem value="SQL">SQL</SelectItem>
+                    <SelectItem value="NoSQL">NoSQL</SelectItem>
+                    <SelectItem value="GCP (Google Cloud Platform)">
+                      GCP (Google Cloud Platform)
+                    </SelectItem>
+                    <SelectItem value="Azure">Azure</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label>Course Level</Label>
-              <Select value={input.courseLevel} onValueChange={selectCourseLevel}>
+              <Select
+                value={input.courseLevel}
+                onValueChange={selectCourseLevel}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select a course level" />
                 </SelectTrigger>

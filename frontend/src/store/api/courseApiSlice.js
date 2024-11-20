@@ -29,7 +29,7 @@ export const courseApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: formData,
       }),
-    
+      invalidatesTags: ['Courses'], // Invalidate Courses tag after editing
     }),
 
     // Endpoint for retrieving a specific course by ID
@@ -38,6 +38,7 @@ export const courseApiSlice = apiSlice.injectEndpoints({
         url: `/course/${courseId}`, 
         method: "GET",
       }),
+      providesTags: ['Courses'],
     }),
   }),
 });
