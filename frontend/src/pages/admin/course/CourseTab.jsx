@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -16,12 +16,13 @@ import {
   SelectLabel,
   SelectItem,
 } from "@/components/ui/select";
-
+import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RichTextEditor from "@/components/RichTextEditor";
+import { useEditCourseMutation } from "@/store/api/courseApiSlice";
 
 const CourseTab = () => {
   const [input, setInput] = useState({
@@ -41,12 +42,14 @@ const CourseTab = () => {
   };
 
   const selectCategory = (value) => {
-    selectCategory({ ...input, category: value });
+    setInput({ ...input, category: value }); 
   };
 
   const selectCourseLevel = (value) => {
     setInput({ ...input, courseLevel: value });
   };
+
+  const [editCourse, { data, isLoading, isSuccess, error }] = useEditCourseMutation();
 
   // get file
   const selectThumbnail = (e) => {
@@ -60,14 +63,34 @@ const CourseTab = () => {
     }
   };
 
-  const updateCourseHandler = () => {
-    console.log("update");
-    
-  }
+  const params = useParams();
+  const courseId = params.courseId;
+
+  const updateCourseHandler = async () => {
+    const formData = new FormData();
+    formData.append("courseTitle", input.courseTitle);
+    formData.append("subTitle", input.subTitle);
+    formData.append("description", input.description);
+    formData.append("category", input.category);
+    formData.append("courseLevel", input.courseLevel);
+    formData.append("coursePrice", input.coursePrice);
+    formData.append("courseThumbnail", input.courseThumbnail);
+
+    await editCourse({ courseId, formData });
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(data?.message || "Course updated"); 
+    }
+    if (error) {
+      toast.error(error?.data?.message || "An error occurred"); 
+    }
+  }, [isSuccess, error, data]); 
 
   const isPublished = false;
-  const isLoading = false;
-  const navigate= useNavigate();
+
+  const navigate = useNavigate();
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between">
@@ -224,7 +247,7 @@ const CourseTab = () => {
             {previewThumbnail && (
               <img
                 src={previewThumbnail}
-                className="e-64 my-2"
+                className="w-64 my-2" 
                 alt="Course Thumbnail"
               />
             )}
@@ -232,7 +255,7 @@ const CourseTab = () => {
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={() => navigate("/admin/courses")}>Cancel</Button>
             <Button disabled={isLoading} onClick={updateCourseHandler}>
-            {isLoading ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Please wait

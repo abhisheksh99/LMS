@@ -12,6 +12,7 @@ export const courseApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Courses'], // Invalidate Courses tag after creation
     }),
+
     // Endpoint for retrieving courses created by the user
     getCreatorCourses: builder.query({
       query: () => ({
@@ -20,6 +21,16 @@ export const courseApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ['Courses'], // Provide Courses tag for this query
     }),
+
+    // Endpoint for editing an existing course
+    editCourse: builder.mutation({
+      query: ({ courseId,formData }) => ({
+        url: `/course/${courseId}`, 
+        method: "PUT",
+        body: formData,
+      }),
+      invalidatesTags: ['Courses'], 
+    }),
   }),
 });
 
@@ -27,4 +38,5 @@ export const courseApiSlice = apiSlice.injectEndpoints({
 export const { 
   useCreateCourseMutation,
   useGetCreatorCoursesQuery, 
+  useEditCourseMutation, 
 } = courseApiSlice;
