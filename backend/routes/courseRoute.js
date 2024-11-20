@@ -1,5 +1,5 @@
 import express from "express";
-import { createCourse } from "../controllers/courseController";
+import { createCourse } from "../controllers/courseController.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
 
 
