@@ -77,13 +77,20 @@ const LectureTab = () => {
   };
 
   const updateLectureHandler = async () => {
-    await updateLecture({
+    const result = await updateLecture({
       lectureTitle,
       videoInfo: uploadVideInfo,
       isPreviewFree: isFree,
       courseId,
       lectureId,
     });
+  
+    if (result?.data?.success) {
+      toast.success("Lecture updated successfully!");
+      navigate(`/admin/courses/${courseId}/lecture`); 
+    } else {
+      toast.error("Failed to update lecture.");
+    }
   };
 
   const removeLectureHandler = async () => {
