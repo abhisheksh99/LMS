@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Course from "../models/courseModel.js";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
+import Lecture from "../models/lectureModel.js";
 
 // Create a new course
 export const createCourse = asyncHandler(async (req, res) => {
@@ -154,5 +155,35 @@ export const togglePublish = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: statusMessage,
+  });
+});
+
+export const removeCourse = asyncHandler(async (req, res) => {
+  const { courseId } = req.params;
+
+  // Validate courseId
+  if (!courseId) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid or missing course ID.",
+    });
+  }
+
+  // Delete all lectures associated with the course
+  await Lecture.deleteMany({ courseId });
+
+  // Delete the course
+  const course = await Course.findByIdAndDelete(courseId);
+
+  if (!course) {
+    return res.status(404).json({
+      success: false,
+      message: "Course not found.",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Course and its lectures removed successfully.",
   });
 });
