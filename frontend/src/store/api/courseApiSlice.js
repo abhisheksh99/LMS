@@ -10,35 +10,44 @@ export const courseApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: { courseTitle, category },
       }),
-      invalidatesTags: ['Courses'], // Invalidate Courses tag after creation
+      invalidatesTags: ['Courses'],
     }),
 
     // Endpoint for retrieving courses created by the user
     getCreatorCourses: builder.query({
       query: () => ({
-        url: "/course",  
+        url: "/course",
         method: "GET",
       }),
-      providesTags: ['Courses'], // Provide Courses tag for this query
+      providesTags: ['Courses'],
     }),
 
     // Endpoint for editing an existing course
     editCourse: builder.mutation({
       query: ({ courseId, formData }) => ({
-        url: `/course/${courseId}`, 
+        url: `/course/${courseId}`,
         method: "PUT",
         body: formData,
       }),
-      invalidatesTags: ['Courses'], // Invalidate Courses tag after editing
+      invalidatesTags: ['Courses'],
     }),
 
     // Endpoint for retrieving a specific course by ID
     getCourseById: builder.query({
       query: (courseId) => ({
-        url: `/course/${courseId}`, 
+        url: `/course/${courseId}`,
         method: "GET",
       }),
       providesTags: ['Courses'],
+    }),
+
+    // Endpoint for toggling publish status
+    togglePublish: builder.mutation({
+      query: ({ courseId, query }) => ({
+        url: `/course/${courseId}?publish=${query}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ['Courses'],
     }),
 
     // Endpoint for creating a lecture within a specific course
@@ -48,7 +57,7 @@ export const courseApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: { lectureTitle },
       }),
-      invalidatesTags: ['Courses'], 
+      invalidatesTags: ['Courses'],
     }),
 
     // Endpoint for retrieving lectures for a specific course
@@ -57,47 +66,48 @@ export const courseApiSlice = apiSlice.injectEndpoints({
         url: `/course/${courseId}/lecture`,
         method: "GET",
       }),
-      providesTags: ['Courses'], 
+      providesTags: ['Courses'],
     }),
 
     // Endpoint for updating a lecture
-    updateLecture : builder.mutation({
-      query: ({ courseId, lectureId, lectureTitle,videoInfo,isPreviewFree}) => ({  
-        url:`/course/${courseId}/lecture/${lectureId}`,
-        method:"PUT",
-        body: {  lectureTitle,videoInfo,isPreviewFree},  
+    updateLecture: builder.mutation({
+      query: ({ courseId, lectureId, lectureTitle, videoInfo, isPreviewFree }) => ({
+        url: `/course/${courseId}/lecture/${lectureId}`,
+        method: "PUT",
+        body: { lectureTitle, videoInfo, isPreviewFree },
       }),
-      invalidatesTags: ['Courses'],  // Invalidate Courses tag after updating
+      invalidatesTags: ['Courses'],
     }),
 
     // Endpoint for removing a lecture
-    removeLecture : builder.mutation({
+    removeLecture: builder.mutation({
       query: (lectureId) => ({
-        url:`/course/lecture/${lectureId}`,
-        method:"DELETE",
+        url: `/course/lecture/${lectureId}`,
+        method: "DELETE",
       }),
-      invalidatesTags: ['Courses'],  // Invalidate Courses tag after removal
+      invalidatesTags: ['Courses'],
     }),
 
     // Endpoint for retrieving a specific lecture by ID
-    getLectureById : builder.query({
+    getLectureById: builder.query({
       query: (lectureId) => ({
-        url:`/course/lecture/${lectureId}`,
-        method:"GET",
+        url: `/course/lecture/${lectureId}`,
+        method: "GET",
       }),
-      providesTags: ['Courses'],  // Provide Courses tag for this query
+      providesTags: ['Courses'],
     }),
   }),
 });
 
-export const { 
+export const {
   useCreateCourseMutation,
-  useGetCreatorCoursesQuery, 
+  useGetCreatorCoursesQuery,
   useEditCourseMutation,
-  useGetCourseByIdQuery, 
-  useCreateLectureMutation, 
+  useGetCourseByIdQuery,
+  useTogglePublishMutation, 
+  useCreateLectureMutation,
   useGetCourseLecturesQuery,
-  useUpdateLectureMutation,   
-  useRemoveLectureMutation,  
-  useGetLectureByIdQuery,     
+  useUpdateLectureMutation,
+  useRemoveLectureMutation,
+  useGetLectureByIdQuery,
 } = courseApiSlice;

@@ -25,6 +25,7 @@ import RichTextEditor from "@/components/RichTextEditor";
 import {
   useEditCourseMutation,
   useGetCourseByIdQuery,
+  useTogglePublishMutation,
 } from "@/store/api/courseApiSlice";
 
 const CourseTab = () => {
@@ -50,6 +51,8 @@ const CourseTab = () => {
     
 
   const [editCourse, { isLoading: isEditing }] = useEditCourseMutation();
+
+  const [togglePublishStatus] = useTogglePublishMutation();
 
   // Initialize data once when component mounts or when course data is fetched
   useEffect(() => {
@@ -113,11 +116,20 @@ const CourseTab = () => {
     }
   };
 
-  const togglePublishStatus = () => {
-    setInput((prevInput) => ({
-      ...prevInput,
-      isPublished: !prevInput.isPublished,
-    }));
+  const ontogglePublishStatus = async () => {
+    try {
+      const publishStatus = !input.isPublished; // Determine the new publish status
+      await togglePublishStatus({ courseId, publish: publishStatus }).unwrap();
+      setInput((prevInput) => ({
+        ...prevInput,
+        isPublished: publishStatus, // Update local state
+      }));
+      toast.success(
+        publishStatus ? "Course published successfully!" : "Course unpublished successfully!"
+      );
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to update publish status");
+    }
   };
 
   const updateCourseHandler = async () => {
@@ -158,7 +170,7 @@ const CourseTab = () => {
           </CardDescription>
         </div>
         <div className="space-x-2">
-          <Button variant="outline" onClick={togglePublishStatus}>
+          <Button variant="outline" onClick={ontogglePublishStatus}>
             {input.isPublished ? "Unpublish" : "Publish"}
           </Button>
           <Button>Remove Course</Button>
