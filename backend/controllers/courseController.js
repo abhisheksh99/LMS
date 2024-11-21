@@ -187,3 +187,25 @@ export const removeCourse = asyncHandler(async (req, res) => {
     message: "Course and its lectures removed successfully.",
   });
 });
+
+export const getPublishedCourses = asyncHandler(async(req,res)=>{
+    // Fetch all published courses
+    const courses = await Course.find({ isPublished: true }).populate("creator", "name photoUrl");
+
+    // Check if no courses were found
+    if (!courses || courses.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No published courses found.",
+      });
+    }
+
+    // Return the list of published courses
+    res.status(200).json({
+      success: true,
+      courses
+
+    });
+    
+    
+})
