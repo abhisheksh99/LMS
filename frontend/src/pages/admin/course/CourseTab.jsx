@@ -25,6 +25,7 @@ import RichTextEditor from "@/components/RichTextEditor";
 import {
   useEditCourseMutation,
   useGetCourseByIdQuery,
+  useRemoveCourseMutation,
   useTogglePublishMutation,
 } from "@/store/api/courseApiSlice";
 
@@ -47,19 +48,32 @@ const CourseTab = () => {
 
   const { data: courseByIdData, isLoading: courseByIdDataLoading } =
     useGetCourseByIdQuery(courseId);
-    console.log(courseByIdData);
-    
+  console.log(courseByIdData);
 
   const [editCourse, { isLoading: isEditing }] = useEditCourseMutation();
 
   const [togglePublishStatus] = useTogglePublishMutation();
 
-  // Initialize data once when component mounts or when course data is fetched
+  const [removeCourse, { isLoading: isRemoving }] = useRemoveCourseMutation();
+
   useEffect(() => {
+    if (!courseByIdData) {
+      setInput({
+        courseTitle: "",
+        subTitle: "",
+        description: "",
+        category: "",
+        courseLevel: "",
+        coursePrice: "",
+        courseThumbnail: "",
+        isPublished: false,
+      });
+      return; // Exit early if the course is not found
+    }
+  
     if (!courseByIdDataLoading && courseByIdData?.course) {
       const course = courseByIdData.course;
 
-      // Only update input state if it's still empty (initial state)
       setInput((prevInput) => ({
         courseTitle: prevInput.courseTitle || course.courseTitle || "",
         subTitle: prevInput.subTitle || course.subTitle || "",
@@ -118,14 +132,16 @@ const CourseTab = () => {
 
   const ontogglePublishStatus = async () => {
     try {
-      const publishStatus = !input.isPublished; // Determine the new publish status
+      const publishStatus = !input.isPublished;
       await togglePublishStatus({ courseId, publish: publishStatus }).unwrap();
       setInput((prevInput) => ({
         ...prevInput,
-        isPublished: publishStatus, // Update local state
+        isPublished: publishStatus,
       }));
       toast.success(
-        publishStatus ? "Course published successfully!" : "Course unpublished successfully!"
+        publishStatus
+          ? "Course published successfully!"
+          : "Course unpublished successfully!"
       );
     } catch (err) {
       toast.error(err?.data?.message || "Failed to update publish status");
@@ -137,7 +153,6 @@ const CourseTab = () => {
       const formData = new FormData();
       Object.entries(input).forEach(([key, value]) => {
         if (value !== "") {
-          
           formData.append(key, value);
         }
       });
@@ -147,6 +162,22 @@ const CourseTab = () => {
       navigate("/admin/courses");
     } catch (err) {
       toast.error(err?.data?.message || "Failed to update course");
+    }
+  };
+
+  const handleRemoveCourse = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to remove this course and its lectures?"
+      )
+    ) {
+      try {
+        await removeCourse(courseId).unwrap();
+        toast.success("Course and its lectures removed successfully!");
+        navigate("/admin/courses");
+      } catch (err) {
+        toast.error(err?.data?.message || "Failed to remove course.");
+      }
     }
   };
 
@@ -170,10 +201,22 @@ const CourseTab = () => {
           </CardDescription>
         </div>
         <div className="space-x-2">
-          <Button variant="outline" onClick={ontogglePublishStatus}>
+          <Button disabled = {courseByIdData?.course?.lectures.length === 0} variant="outline" onClick={ontogglePublishStatus}>
             {input.isPublished ? "Unpublish" : "Publish"}
           </Button>
-          <Button>Remove Course</Button>
+          <Button
+            onClick={handleRemoveCourse}
+            disabled={isRemoving}
+          >
+            {isRemoving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Removing...
+              </>
+            ) : (
+              "Remove Course"
+            )}
+          </Button>
         </div>
       </CardHeader>
       <CardContent>

@@ -49,6 +49,13 @@ export const courseApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Courses'],
     }),
+    removeCourse: builder.mutation({
+      query: (courseId) => ({
+        url: `/course/${courseId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ['Courses'], // Invalidate courses cache
+    }),
 
     // Endpoint for creating a lecture within a specific course
     createLecture: builder.mutation({
@@ -109,5 +116,6 @@ export const {
   useGetCourseLecturesQuery,
   useUpdateLectureMutation,
   useRemoveLectureMutation,
+  useRemoveCourseMutation,
   useGetLectureByIdQuery,
 } = courseApiSlice;
