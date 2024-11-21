@@ -119,3 +119,40 @@ export const getCourseById = asyncHandler(async (req, res) => {
   });
 });
 
+export const togglePublish = asyncHandler(async (req, res) => {
+  const { courseId } = req.params;
+  const { publish } = req.query; // "true" or "false"
+
+  // Check if publish query parameter is provided
+  if (!publish) {
+    return res.status(400).json({
+      success: false,
+      message: "Publish query parameter is required.",
+    });
+  }
+
+  // Find the course by ID
+  const course = await Course.findById(courseId);
+
+  // Check if the course exists
+  if (!course) {
+    return res.status(404).json({
+      success: false,
+      message: "Course not found.",
+    });
+  }
+
+  // Update publish status based on query parameter
+  course.isPublished = publish === "true";
+  await course.save();
+
+  const statusMessage = course.isPublished
+    ? "Course is Published"
+    : "Course not Published";
+
+  // Send response with status message
+  res.status(200).json({
+    success: true,
+    message: statusMessage,
+  });
+});
