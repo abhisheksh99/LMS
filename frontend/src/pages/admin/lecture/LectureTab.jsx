@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import {
+  useGetCourseByIdQuery,
+  useGetLectureByIdQuery,
   useRemoveLectureMutation,
   useUpdateLectureMutation,
 } from "@/store/api/courseApiSlice";
@@ -33,9 +35,21 @@ const LectureTab = () => {
   const navigate = useNavigate();
   const { courseId, lectureId } = params;
 
+  const { data: lectureData } = useGetLectureByIdQuery(lectureId);
+  const lecture = lectureData?.lecture;
+
+  useEffect(() => {
+    if (lecture) {
+      setLectureTitle(lecture.lectureTitle);
+      setIsFree(lecture.isPreviewFree);
+      setUploadVideoInfo(lecture.videoInfo);
+    }
+  }, [lecture]);
+
   const [updateLecture, { isLoading, isSuccess, error }] =
     useUpdateLectureMutation();
-  const [removeLecture, { isLoading: removeLoading }] = useRemoveLectureMutation();
+  const [removeLecture, { isLoading: removeLoading }] =
+    useRemoveLectureMutation();
 
   useEffect(() => {
     if (isSuccess) {
@@ -84,10 +98,10 @@ const LectureTab = () => {
       courseId,
       lectureId,
     });
-  
+
     if (result?.data?.success) {
       toast.success("Lecture updated successfully!");
-      navigate(`/admin/courses/${courseId}/lecture`); 
+      navigate(`/admin/courses/${courseId}/lecture`);
     } else {
       toast.error("Failed to update lecture.");
     }
@@ -97,7 +111,7 @@ const LectureTab = () => {
     const result = await removeLecture(lectureId);
     if (result?.data?.success) {
       toast.success("Lecture removed successfully!");
-      navigate(`/admin/courses/${courseId}/lecture`); 
+      navigate(`/admin/courses/${courseId}/lecture`);
     } else {
       toast.error("Failed to remove lecture.");
     }
@@ -113,7 +127,11 @@ const LectureTab = () => {
           </CardDescription>
         </div>
         <div className="flex items-center gap-2">
-          <Button disabled={removeLoading} variant="destructive" onClick={removeLectureHandler}>
+          <Button
+            disabled={removeLoading}
+            variant="destructive"
+            onClick={removeLectureHandler}
+          >
             {removeLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -148,7 +166,11 @@ const LectureTab = () => {
           />
         </div>
         <div className="flex items-center space-x-2 my-5">
-          <Switch checked={isFree} onCheckedChange={setIsFree} id="airplane-mode" />
+          <Switch
+            checked={isFree}
+            onCheckedChange={setIsFree}
+            id="airplane-mode"
+          />
           <Label htmlFor="airplane-mode">Is this video FREE</Label>
         </div>
 
