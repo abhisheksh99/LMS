@@ -14,6 +14,7 @@ import EditCourse from "./pages/admin/course/EditCourse";
 import CreateLecture from "./pages/admin/lecture/CreateLecture";
 import EditLecture from "./pages/admin/lecture/EditLecture";
 import CourseDetails from "./pages/student/CourseDetails";
+import CourseProgress from "./pages/student/CourseProgress";
 
 const App = () => {
   return (
@@ -40,6 +41,8 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           {/* Course Details page: Displays detailed information about a course */}
           <Route path="/course-detail/:courseId" element={<CourseDetails />} />
+
+          <Route path="/course-progress/:courseId" element={<CourseProgress />} />
 
           {/* Admin Routes */}
           {/* Admin layout with a sidebar for navigation */}
