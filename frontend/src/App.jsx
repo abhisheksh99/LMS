@@ -15,6 +15,7 @@ import CreateLecture from "./pages/admin/lecture/CreateLecture";
 import EditLecture from "./pages/admin/lecture/EditLecture";
 import CourseDetails from "./pages/student/CourseDetails";
 import CourseProgress from "./pages/student/CourseProgress";
+import SearchPage from "./pages/student/SearchPage";
 
 const App = () => {
   return (
@@ -39,6 +40,7 @@ const App = () => {
           <Route path="/my-learning" element={<MyLearning />} />
           {/* Profile page: Allows students to edit and view their profile */}
           <Route path="/profile" element={<Profile />} />
+          <Route path="/course/search" element={<SearchPage/>} />
           {/* Course Details page: Displays detailed information about a course */}
           <Route path="/course-detail/:courseId" element={<CourseDetails />} />
 

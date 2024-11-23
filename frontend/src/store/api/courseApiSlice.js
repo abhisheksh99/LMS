@@ -13,6 +13,31 @@ export const courseApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Courses"], // Invalidate the Courses tag
     }),
 
+    // Endpoint for searching courses
+    getSearchCourse: builder.query({
+      query: ({ searchQuery = "", categories = [], sortByPrice = "" }) => {
+        // Build query string
+        let queryString = `/course/search?query=${encodeURIComponent(searchQuery)}`;
+
+        // Append categories if provided
+        if (categories && categories.length > 0) {
+          const categoriesString = categories.map(encodeURIComponent).join(",");
+          queryString += `&categories=${categoriesString}`;
+        }
+
+        // Append sortByPrice if available
+        if (sortByPrice) {
+          queryString += `&sortByPrice=${encodeURIComponent(sortByPrice)}`;
+        }
+
+        return {
+          url: queryString,
+          method: "GET",
+        };
+      },
+      providesTags: ["Courses"], // Provide the Courses tag
+    }),
+
     // Endpoint for retrieving courses created by the user
     getCreatorCourses: builder.query({
       query: () => ({
@@ -62,7 +87,7 @@ export const courseApiSlice = apiSlice.injectEndpoints({
     // Endpoint for retrieving published courses
     getPublishedCourses: builder.query({
       query: () => ({
-        url: `/course/published-courses`,
+        url: "/course/published-courses",
         method: "GET",
       }),
       providesTags: ["Courses"], // Provide the Courses tag
@@ -120,6 +145,7 @@ export const courseApiSlice = apiSlice.injectEndpoints({
 // Export the hooks
 export const {
   useCreateCourseMutation,
+  useGetSearchCourseQuery,
   useGetCreatorCoursesQuery,
   useEditCourseMutation,
   useGetCourseByIdQuery,
