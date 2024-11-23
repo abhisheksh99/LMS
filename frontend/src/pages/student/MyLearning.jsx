@@ -1,9 +1,12 @@
 import React from "react";
 import Course from "./Course";
+import { useGetUserProfileByIdQuery } from "@/store/api/authApiSlice";
 
 const MyLearning = () => { 
-    const isLoading = false
-    const myLearning =[]
+   
+    const {data,isLoading} = useGetUserProfileByIdQuery();
+    const myLearning = data?.user.enrolledCourses || []
+
 
 
  
